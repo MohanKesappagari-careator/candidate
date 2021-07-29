@@ -5,6 +5,11 @@ import { Job } from 'bull';
 export class CandidateConsumer {
   @Process('create')
   createJob(job: Job<unknown>) {
-    console.log('createCandidate', job.data);
+    console.log('createCandidate1', job.data);
+  }
+
+  @Process('update')
+  updateJob(job: Job<unknown>) {
+    console.log('updateCandidate1', job.data);
   }
 }

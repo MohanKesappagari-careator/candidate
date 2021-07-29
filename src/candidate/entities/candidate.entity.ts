@@ -27,9 +27,4 @@ export class Candidate {
   @Field()
   @Column({ nullable: true })
   password: string;
-
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10); // hashed password
-  }
 }
