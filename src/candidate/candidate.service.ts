@@ -1,18 +1,51 @@
-import { HttpException } from '@nestjs/common';
+import { HttpException, Logger } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCandidateInput } from './dto/create-candidate.input';
+import { LoginDto } from './dto/LoginDto';
 import { UpdateCandidateInput } from './dto/update-candidate.input';
 import { Candidate } from './entities/candidate.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CandidateService {
+  private readonly logger = new Logger(CandidateService.name);
   constructor(
     @InjectRepository(Candidate)
     private candidateRepository: Repository<Candidate>,
   ) {}
+  async findByEmail(email: string) {
+    return this.candidateRepository.findOne({ where: { email: email } });
+  }
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
+    return await bcrypt.hash(password, salt);
+  }
+
+  private async validateUser(loginDto: LoginDto) {
+    try {
+      const { email, password } = loginDto;
+      const user = await this.findByEmail(email);
+      if (!user) {
+        throw new HttpException({ message: 'User not found' }, 404);
+      }
+      console.log(user);
+      if (password !== user.password) {
+        throw new HttpException({ message: 'Invalid login details' }, 401);
+      }
+      return Promise.resolve(user);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async login(loginDto: LoginDto) {
+    return this.validateUser(loginDto).then((user) => {
+      return Promise.resolve(this.logger.log('login Successful'));
+    });
+  }
   async create(createCandidateInput: CreateCandidateInput) {
     const { name, email, dateOfBirth } = createCandidateInput;
     var year = dateOfBirth.getFullYear();
@@ -33,6 +66,7 @@ export class CandidateService {
       email: email,
       dateOfBirth: dateOfBirth,
       age: age,
+      password: '12345',
     });
   }
 

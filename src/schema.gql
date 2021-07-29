@@ -8,6 +8,7 @@ type Candidate {
   email: String!
   dateOfBirth: DateTime!
   age: Float
+  password: String!
 }
 
 """
@@ -22,6 +23,7 @@ type Query {
 
 type Mutation {
   createCandidate(createCandidateInput: CreateCandidateInput!): Candidate!
+  login(login: LoginDto!): Candidate!
   updateCandidate(updateCandidateInput: UpdateCandidateInput!): Candidate!
   removeCandidate(id: String!): Candidate!
 }
@@ -30,6 +32,11 @@ input CreateCandidateInput {
   name: String!
   email: String!
   dateOfBirth: DateTime!
+}
+
+input LoginDto {
+  email: String!
+  password: String!
 }
 
 input UpdateCandidateInput {

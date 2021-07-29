@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,6 +22,12 @@ import { CandidateModule } from './candidate/candidate.module';
       database: 'candidate',
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
+    }),
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
     }),
   ],
   controllers: [AppController],

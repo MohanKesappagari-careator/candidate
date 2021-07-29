@@ -3,6 +3,7 @@ import { CandidateService } from './candidate.service';
 import { Candidate } from './entities/candidate.entity';
 import { CreateCandidateInput } from './dto/create-candidate.input';
 import { UpdateCandidateInput } from './dto/update-candidate.input';
+import { LoginDto } from './dto/LoginDto';
 
 @Resolver(() => Candidate)
 export class CandidateResolver {
@@ -18,6 +19,11 @@ export class CandidateResolver {
   @Query(() => [Candidate], { name: 'Allcandidate' })
   findAll() {
     return this.candidateService.findAll();
+  }
+
+  @Mutation(() => Candidate)
+  login(@Args('login') loginDto: LoginDto) {
+    return this.candidateService.login(loginDto);
   }
 
   @Query(() => Candidate, { name: 'candidate' })
