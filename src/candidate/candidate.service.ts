@@ -8,11 +8,14 @@ import { LoginDto } from './dto/LoginDto';
 import { UpdateCandidateInput } from './dto/update-candidate.input';
 import { Candidate } from './entities/candidate.entity';
 import * as bcrypt from 'bcrypt';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class CandidateService {
   private readonly logger = new Logger(CandidateService.name);
   constructor(
+    @InjectQueue('notification') private queue: Queue,
     @InjectRepository(Candidate)
     private candidateRepository: Repository<Candidate>,
   ) {}
@@ -41,7 +44,7 @@ export class CandidateService {
       return Promise.reject(e);
     }
   }
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<any> {
     return this.validateUser(loginDto).then((user) => {
       return Promise.resolve(this.logger.log('login Successful'));
     });
@@ -61,6 +64,13 @@ export class CandidateService {
       age--;
     }
 
+    await this.queue.add('create', {
+      name: name,
+      email: email,
+      dateOfBirth: dateOfBirth,
+      age: age,
+      password: '12345',
+    });
     return await this.candidateRepository.save({
       name: name,
       email: email,
